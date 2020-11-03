@@ -11,6 +11,9 @@ public class TrafficEvent {
     private double event_latitude;
     private String event_reporter_id;
     private String event_level;
+    private int event_like_number;
+    private String event_description;
+    private String imgUri;
 
     public String getId() {
         return id;
@@ -122,8 +125,4 @@ public class TrafficEvent {
     public int hashCode() {
         return Objects.hash(id, event_type, event_comment_number, event_timestamp, event_longitude, event_latitude, event_reporter_id, event_level, event_like_number, event_description, imgUri);
     }
-
-    private int event_like_number;
-    private String event_description;
-    private String imgUri;
 }

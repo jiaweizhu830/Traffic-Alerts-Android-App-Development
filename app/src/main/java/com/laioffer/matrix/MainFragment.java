@@ -1,6 +1,7 @@
 package com.laioffer.matrix;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -52,6 +53,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,6 +64,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import static android.app.Activity.RESULT_OK;
 import static com.laioffer.matrix.Config.listItems;
@@ -85,6 +91,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
     private FloatingActionButton fabReport;
     private FloatingActionButton fabFocus;
     private FloatingActionButton speakNow;
+
+    private Marker lastMarker;
 
     private ReportDialog dialog;
     private DatabaseReference database;
@@ -304,6 +312,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
         event.setEvent_description(editString);
         event.setEvent_reporter_id(user_id);
         event.setEvent_timestamp(System.currentTimeMillis());
+
         event.setEvent_latitude(locationTracker.getLatitude());
         event.setEvent_longitude(locationTracker.getLongitude());
         event.setEvent_like_number(0);
@@ -367,6 +376,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
                     // compress the images
                     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     imageBitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes);
+
+                    verifyStoragePermissions(getActivity());
 
                     File destination = new File(Environment.getExternalStorageDirectory(), "temp.png");
                     if (!destination.exists()) {
@@ -433,6 +444,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
         }
 
         Uri uri = Uri.fromFile(file);
+
         final StorageReference imgRef = storageRef.child("images/" + uri.getLastPathSegment() + "_"
                 + System.currentTimeMillis());
 
@@ -523,6 +535,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
         });
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     public boolean onMarkerClick(Marker marker) {
         mEvent = (TrafficEvent) marker.getTag();
@@ -532,7 +545,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
         }
 
         String user = mEvent.getEvent_reporter_id();
-        String type = mEvent.getEvent_type();
+        final String type = mEvent.getEvent_type();
         long time = mEvent.getEvent_timestamp();
         double latitude = mEvent.getEvent_latitude();
         double longitude = mEvent.getEvent_longitude();
@@ -548,27 +561,34 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
             mEventImageType.setImageDrawable(ContextCompat.getDrawable(getContext(),
                     Config.trafficMap.get(type)));
         } else {
-            new AsyncTask<Void, Void, Bitmap>() {
+//            new AsyncTask<Void, Void, Bitmap>() {
+//
+//                @Override
+//                protected Bitmap doInBackground(Void... voids) {
+//                    Log.d("MainFragment", "uri: " + url);
+//                    Bitmap bitmap = Utils.getBitmapFromURL(url);
+//                    return bitmap;
+//                }
+//
+//                @Override
+//                protected void onPostExecute(Bitmap bitmap) {
+//                    super.onPostExecute(bitmap);
+//                    mEventImageType.setImageBitmap(bitmap);
+//                    Log.d("MainFragment", "bitmap: " + bitmap);
+//                }
+//            }.execute();
 
-                @Override
-                protected Bitmap doInBackground(Void... voids) {
-                    Bitmap bitmap = Utils.getBitmapFromURL(url);
-                    return bitmap;
-                }
-
-                @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    super.onPostExecute(bitmap);
-                    mEventImageType.setImageBitmap(bitmap);
-                }
-            }.execute();
+            Picasso.get()
+                    .load(url)
+                    .into(mEventImageType);
         }
-
 
         if (user == null) {
             user = "";
         }
-        String info = "Reported by " + user + "" + Utils.timeTransformer(time);
+
+        String info = "Reported by " + user + "   " + Utils.timeTransformer(time);
+
         mEventTextTime.setText(info);
 
         int distance = 0;
@@ -582,8 +602,10 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
 
         if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            marker.showInfoWindow();
         } else {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            marker.hideInfoWindow();
         }
 
         return true;

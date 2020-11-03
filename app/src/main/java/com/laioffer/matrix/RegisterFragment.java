@@ -79,9 +79,10 @@ public class RegisterFragment extends OnBoardingBaseFragment {
             }
         });
 
-        AdView mAdView = view.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        // Add Google Ads
+//        AdView mAdView = view.findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        mAdView.loadAd(adRequest);
 
         return view;
     }

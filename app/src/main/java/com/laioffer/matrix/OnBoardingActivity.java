@@ -74,7 +74,7 @@ public class OnBoardingActivity extends AppCompatActivity {
         mAuth.addAuthStateListener(mAuthListener);
     }
 
-    //remove auth listener when the activity stops
+    // remove auth listener when the activity stops
     @Override
     public void onStop() {
         super.onStop();

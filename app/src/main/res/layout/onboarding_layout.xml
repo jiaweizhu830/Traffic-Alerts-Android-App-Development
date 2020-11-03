@@ -16,7 +16,9 @@
         android:textCursorDrawable="@null"
         android:fontFamily="Roboto"
         android:textColor="#000000"
-        android:textSize="20sp"/>
+        android:textSize="18sp"/>
+
+<!--    android:textColor="@color/primaryTextColor"-->
 
     <!-- username edit area -->
     <EditText
@@ -35,9 +37,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="Roboto"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textColor="#000000"
         android:text="Password:" />
+<!--    android:textColor="#000000"-->
 
     <!-- password edit area -->
     <EditText
@@ -58,6 +61,7 @@
         android:layout_height="48dp"
         android:fontFamily="Roboto"
         android:textColor="@android:color/white"
+        android:textStyle="bold"
         android:background="@drawable/login_buttons"
         android:id="@+id/submit" />
 
